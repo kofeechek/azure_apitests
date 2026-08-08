@@ -9,17 +9,14 @@ import java.time.Instant;
 
 public class TestBase {
 
-    @BeforeAll
-    public static void setUp() {
-        RestAssured.baseURI = "https://fakerestapi.azurewebsites.net";
-
-    }
-
     protected int id;
     protected String title;
     protected String dueDate;
     protected boolean completed;
     protected String wrongCompleted;
+
+    protected int randomId;
+    protected int invalidId;
 
     @BeforeEach
     public void prepareTestData() {
@@ -34,6 +31,15 @@ public class TestBase {
 
         completed = faker.bool().bool();
         wrongCompleted = faker.text().text(10);
+
+        randomId = faker.number().numberBetween(1, 30);
+        invalidId = faker.number().numberBetween(31, 1000);
+    }
+
+    @BeforeAll
+    public static void setUp() {
+        RestAssured.baseURI = "https://fakerestapi.azurewebsites.net";
+
     }
 }
 

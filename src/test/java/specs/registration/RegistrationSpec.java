@@ -1,8 +1,6 @@
 package specs.registration;
 
-import io.restassured.builder.ResponseBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.filter.log.LogDetail;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
@@ -13,7 +11,7 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 
 
 public class RegistrationSpec {
-    public static RequestSpecification registrationRequestSpec = with()
+    public static RequestSpecification activitiesRequestSpec = with()
             .log().all()
             .contentType(JSON);
 
@@ -22,11 +20,15 @@ public class RegistrationSpec {
             .expectStatusCode(200)
             .expectBody(matchesJsonSchemaInClasspath("schemas/azure_activities_response_schema.json")).build();
 
-    public static ResponseSpecification successfulGetResponseSpec = new ResponseSpecBuilder()
+    public static ResponseSpecification successfulResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
             .expectStatusCode(200).build();
 
     public static ResponseSpecification failedRegistrationResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
             .expectStatusCode(400).build();
+
+    public static ResponseSpecification failedGetDoesntExistIdResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(404).build();
 }
