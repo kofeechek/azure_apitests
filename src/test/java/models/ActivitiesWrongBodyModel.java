@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ActivitiesBodyModel {
+public class ActivitiesWrongBodyModel {
     Integer id;
     String title;
     String dueDate;
-    Boolean completed;
-   }
+    String completed;
+}

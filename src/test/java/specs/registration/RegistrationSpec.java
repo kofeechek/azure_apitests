@@ -22,6 +22,10 @@ public class RegistrationSpec {
             .expectStatusCode(200)
             .expectBody(matchesJsonSchemaInClasspath("schemas/azure_activities_response_schema.json")).build();
 
+    public static ResponseSpecification successfulGetResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(200).build();
+
     public static ResponseSpecification failedRegistrationResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
             .expectStatusCode(400).build();
