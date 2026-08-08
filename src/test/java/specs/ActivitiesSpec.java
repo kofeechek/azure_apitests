@@ -1,17 +1,21 @@
-package specs.registration;
+package specs;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+import static allure.CustomAllureListener.withCustomTemplate;
 import static io.restassured.RestAssured.with;
 import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 
-public class RegistrationSpec {
+public class ActivitiesSpec {
     public static RequestSpecification activitiesRequestSpec = with()
+            .filter(withCustomTemplate())
+
             .log().all()
             .contentType(JSON);
 
@@ -31,4 +35,8 @@ public class RegistrationSpec {
     public static ResponseSpecification failedGetDoesntExistIdResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
             .expectStatusCode(404).build();
+
+    public static ResponseSpecification failedDeleteNoIdResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(405).build();
 }

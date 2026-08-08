@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static specs.registration.RegistrationSpec.*;
+import static specs.ActivitiesSpec.*;
 
 public class AzureActivitiesApiTests extends TestBase {
 
@@ -51,6 +49,25 @@ public class AzureActivitiesApiTests extends TestBase {
         assertThat(activities).hasSize(30); //Проверка количества возвращаемых элементов
     }
 
+    @Test
+    public void getByExistIdSuccessTest() {
+
+        given(activitiesRequestSpec)
+                .when()
+                .get("/api/v1/Activities/" + randomId)
+                .then()
+                .spec(successfulRegistrationResponseSpec);
+    }
+
+    @Test
+    public void getByDoesntExistIdWrongTest() {
+
+        given(activitiesRequestSpec)
+                .when()
+                .get("/api/v1/Activities/" + invalidId)
+                .then()
+                .spec(failedGetDoesntExistIdResponseSpec);
+    }
 
     @Test
     public void getWrongPathTest() {
@@ -60,16 +77,6 @@ public class AzureActivitiesApiTests extends TestBase {
                 .get("/api/v1/Activitie")
                 .then()
                 .statusCode(404);
-    }
-
-    @Test
-    public void getByExistIdSuccessTest() {
-
-        given(activitiesRequestSpec)
-                .when()
-                .get("/api/v1/Activities/" + randomId)
-                .then()
-                .spec(successfulRegistrationResponseSpec);
     }
 
     @Test
@@ -130,6 +137,16 @@ public class AzureActivitiesApiTests extends TestBase {
                 .delete("/api/v1/Activities/" + randomId)
                 .then()
                 .spec(successfulResponseSpec);
+    }
+
+    @Test
+    public void deleteNoIdWrongTest() {
+
+        given(activitiesRequestSpec)
+                .when()
+                .delete("/api/v1/Activities/")
+                .then()
+                .spec(failedDeleteNoIdResponseSpec);
     }
 }
 
