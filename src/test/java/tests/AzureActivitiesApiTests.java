@@ -1,26 +1,33 @@
 package tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import models.ActivitiesBodyModel;
 import models.ActivitiesResponseModel;
 import models.ActivitiesWrongBodyModel;
 import models.ActivitiesWrongTestDataResponseModel;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
 
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static specs.ActivitiesSpec.*;
 
+@Feature("Тесты на Activities")
 public class AzureActivitiesApiTests extends TestBase {
 
     @Test
+    @DisplayName("[API] Успешное получение всех записей Activities")
+    @Severity(SeverityLevel.NORMAL)
+    @Owner("tsvetlitskaya")
     public void getAllActivitiesSuccessTest() {
 
         List<ActivitiesResponseModel> activities = given(activitiesRequestSpec)
@@ -32,24 +39,32 @@ public class AzureActivitiesApiTests extends TestBase {
                 .jsonPath()
                 .getList("", ActivitiesResponseModel.class);
 
-        assertThat(activities).isNotEmpty(); //Проверяем, что вернулся список
-
-        assertThat(activities) //Проверяем структуру объектов
-                .allSatisfy(activity -> {
-                    assertThat(activity.getId()).isNotNull().isPositive();
-                    assertThat(activity.getTitle()).isNotNull().isNotBlank();
-                    assertThat(activity.getCompleted()).isNotNull();
-                    assertThat(activity.getDueDate()).isNotNull().isNotBlank();
-                });
-
-        activities.forEach(activity -> { //Проверяем формат даты
-            assertDoesNotThrow(() -> Instant.parse(activity.getDueDate()));
+        step("Проверить, что вернулся список", () -> {
+            assertThat(activities).isNotEmpty();
         });
-
-        assertThat(activities).hasSize(30); //Проверка количества возвращаемых элементов
+        step("Проверить структуру объектов", () -> {
+            assertThat(activities)
+                    .allSatisfy(activity -> {
+                        assertThat(activity.getId()).isNotNull().isPositive();
+                        assertThat(activity.getTitle()).isNotNull().isNotBlank();
+                        assertThat(activity.getCompleted()).isNotNull();
+                        assertThat(activity.getDueDate()).isNotNull().isNotBlank();
+                    });
+        });
+        step("Проверить формат даты", () -> {
+            activities.forEach(activity -> {
+                assertDoesNotThrow(() -> Instant.parse(activity.getDueDate()));
+            });
+        });
+        step("Проверить количество возвращаемых элементов", () -> {
+            assertThat(activities).hasSize(30);
+        });
     }
 
     @Test
+    @DisplayName("[API] Успешное получение записи Activities по существующему id")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void getByExistIdSuccessTest() {
 
         given(activitiesRequestSpec)
@@ -60,6 +75,9 @@ public class AzureActivitiesApiTests extends TestBase {
     }
 
     @Test
+    @DisplayName("[API] Ошибка при попытке запроса записи Activities по несуществующему id")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void getByDoesntExistIdWrongTest() {
 
         given(activitiesRequestSpec)
@@ -70,6 +88,9 @@ public class AzureActivitiesApiTests extends TestBase {
     }
 
     @Test
+    @DisplayName("[API] Ошибка при попытке запроса на несуществующий endpoint Activities")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void getWrongPathTest() {
 
         given(activitiesRequestSpec)
@@ -80,6 +101,9 @@ public class AzureActivitiesApiTests extends TestBase {
     }
 
     @Test
+    @DisplayName("[API] Успешное добавление записи Activities")
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("tsvetlitskaya")
     public void addActivitiesSuccessTest() {
 
         ActivitiesBodyModel data = ActivitiesBodyModel.builder()
@@ -98,14 +122,19 @@ public class AzureActivitiesApiTests extends TestBase {
                 .extract()
                 .as(ActivitiesResponseModel.class);
 
-        assertEquals(id, activitiesResponse.getId());
-        assertEquals(title, activitiesResponse.getTitle());
-        assertEquals(dueDate, activitiesResponse.getDueDate());
-        assertEquals(completed, activitiesResponse.getCompleted());
+        step("Проверить соответствие id, title, dueDate, completed", () -> {
+            assertEquals(id, activitiesResponse.getId());
+            assertEquals(title, activitiesResponse.getTitle());
+            assertEquals(dueDate, activitiesResponse.getDueDate());
+            assertEquals(completed, activitiesResponse.getCompleted());
+        });
     }
 
 
     @Test
+    @DisplayName("[API] Ошибка при попытке добавления записи Activities с неверным типом данных в completed")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void addActivitiesWrongTestDataTest() {
 
         ActivitiesWrongBodyModel wrongData = ActivitiesWrongBodyModel.builder()
@@ -124,12 +153,17 @@ public class AzureActivitiesApiTests extends TestBase {
                 .extract()
                 .as(ActivitiesWrongTestDataResponseModel.class);
 
-        assertEquals("https://tools.ietf.org/html/rfc7231#section-6.5.1", activitiesWrongTestDataResponseModel.getType());
-        assertEquals("One or more validation errors occurred.", activitiesWrongTestDataResponseModel.getTitle());
+        step("Проверить соответствие type, title", () -> {
+            assertEquals("https://tools.ietf.org/html/rfc7231#section-6.5.1", activitiesWrongTestDataResponseModel.getType());
+            assertEquals("One or more validation errors occurred.", activitiesWrongTestDataResponseModel.getTitle());
+        });
     }
 
 
     @Test
+    @DisplayName("[API] Успешное удаление записи Activities")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void deleteSuccessTest() {
 
         given(activitiesRequestSpec)
@@ -140,6 +174,9 @@ public class AzureActivitiesApiTests extends TestBase {
     }
 
     @Test
+    @DisplayName("[API] Ошибка при попытке удаления записи Activities без id в endpoint")
+    @Severity(SeverityLevel.MINOR)
+    @Owner("tsvetlitskaya")
     public void deleteNoIdWrongTest() {
 
         given(activitiesRequestSpec)
